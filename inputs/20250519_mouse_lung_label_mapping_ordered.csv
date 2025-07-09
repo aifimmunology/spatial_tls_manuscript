@@ -1,0 +1,38 @@
+label_fine,label_medium,label_coarse,label_coarser
+AT1,Alv Epi,Alv Epi,Epithelial
+AT2,Alv Epi,Alv Epi,Epithelial
+Club,Airwary Epi,Airwary Epi,Epithelial
+Ciliated,Airwary Epi,Airwary Epi,Epithelial
+SMC,Mesenchymal,Mesenchymal,Mesenchymal
+Col13a1+ fibroblast,Mesenchymal,Mesenchymal,Mesenchymal
+Col14a1+ fibroblast,Mesenchymal,Mesenchymal,Mesenchymal
+Myofibroblast,Mesenchymal,Mesenchymal,Mesenchymal
+Pericyte 1,Mesenchymal,Mesenchymal,Mesenchymal
+Pericyte 2,Mesenchymal,Mesenchymal,Mesenchymal
+Mesothelial,Mesenchymal,Mesenchymal,Mesenchymal
+Cap,Endothelial,Endothelial,Endothelial
+Cap-a,Endothelial,Endothelial,Endothelial
+Art,Endothelial,Endothelial,Endothelial
+Vein,Endothelial,Endothelial,Endothelial
+Lymph,Endothelial,Endothelial,Endothelial
+Mono,Myeloid,Myeloid,Myeloid
+Int Mf,Myeloid,Myeloid,Myeloid
+Alv Mf,Myeloid,Myeloid,Myeloid
+Neut,Myeloid,Myeloid,Myeloid
+cDC1,Myeloid,Myeloid,Myeloid
+Ccr7- cDC2,Myeloid,Myeloid,Myeloid
+Ccr7+ cDC2,Myeloid,Myeloid,Myeloid
+B cell,B cell,B cell,Lymphoid
+Plasmablast,B cell,B cell,Lymphoid
+NK cell,Innate Lymphoid,Innate Lymphoid,Innate Lymphoid
+gd T cell,Innate Lymphoid,Innate Lymphoid,Innate Lymphoid
+ILC2,Innate Lymphoid,Innate Lymphoid,Innate Lymphoid
+CD8 naive,CD8 naive,CD8 T cell,Lymphoid
+CD8 act,CD8 act,CD8 T cell,Lymphoid
+CD4 naive,CD4 naive,CD4 T cell,Lymphoid
+Th0,CD4 act,CD4 T cell,Lymphoid
+CD4 trans,CD4 act,CD4 T cell,Lymphoid
+Th1,CD4 act,CD4 T cell,Lymphoid
+Th17,CD4 act,CD4 T cell,Lymphoid
+Th2,CD4 act,CD4 T cell,Lymphoid
+Treg,CD4 act,CD4 T cell,Lymphoid

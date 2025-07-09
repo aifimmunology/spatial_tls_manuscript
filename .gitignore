@@ -1,0 +1,14 @@
+*.pdf
+*.png
+*.h5ad
+*.parquet
+*.pt
+*.joblib
+*.pkl
+*.pickle
+*.json
+*.geojson
+*.gz
+*.txt
+*.pth
+
