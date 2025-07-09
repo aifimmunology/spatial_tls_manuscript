@@ -20,8 +20,8 @@ In gpu IDE:
 - conda env create -n cellcharter2 --prefix /home/workspace/environment/space2 -f /home/workspace/spatial_tls_manuscript/conda_envs/cellcharter2_20250604.yml
 
 ### IDE and conda environments
-- [initial_processing/01_label_prediction_scanvi](initial_processing/01_label_prediction_scanvi) and [initial_processing/04_cellcharter](initial_processing/04_cellcharter) should be run in a gpu IDE with the cellcharter2 conda environment. All other notebooks can be run in a cpu IDE.
-- [initial_processing/03_cd4_cite_integration](initial_processing/03_cd4_cite_integration) is in R and should be run in the r_seurat conda environment
-- [initial_processing/00_scRNAseq_reference](initial_processing/00_scRNAseq_reference) and [initial_processing/02_label_refine](initial_processing/02_label_refine) can be run in conda environment space2
+- [initial_processing/01_label_prediction_scanvi.ipynb](initial_processing/01_label_prediction_scanvi.ipynb) and [initial_processing/04_cellcharter.ipynb](initial_processing/04_cellcharter.ipynb) should be run in a gpu IDE with the cellcharter2 conda environment. All other notebooks can be run in a cpu IDE.
+- [initial_processing/03_cd4_cite_integration.ipynb](initial_processing/03_cd4_cite_integration.ipynb) is in R and should be run in the r_seurat conda environment
+- [initial_processing/00_scRNAseq_reference.ipynb](initial_processing/00_scRNAseq_reference.ipynb) and [initial_processing/02_label_refine.ipynb](initial_processing/02_label_refine.ipynb) can be run in conda environment space2
 - Both notebooks in downstream_processing/ can be run in a cpu IDE with conda environment space2
 
