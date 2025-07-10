@@ -46,17 +46,17 @@ In cpu IDE:
 In gpu IDE: 
 - conda env create -n cellcharter2 --prefix /home/workspace/environment/space2 -f /home/workspace/spatial_tls_manuscript/conda_envs/cellcharter2_20250604.yml
 
-### IDE and conda environments 
-```
-| Notebook(s)                                           | Recommended Environment   | Notes                                |
-| ----------------------------------------------------| -------------------------| ------------------------------------|
-| `initial_processing/01_label_prediction_scanvi.ipynb` | `cellcharter2` (GPU IDE) | Requires GPU environment             |
-| `initial_processing/04_cellcharter.ipynb`             | `cellcharter2` (GPU IDE) | Requires GPU environment             |
-| `initial_processing/03_cd4_cite_integration.ipynb`    | `r_seurat`               | R environment for Seurat processing  |
-| `initial_processing/00_scRNAseq_reference.ipynb`      | `space2` (CPU IDE)       | CPU environment                      |
-| `initial_processing/02_label_refine.ipynb`            | `space2` (CPU IDE)       | CPU environment                      |
-| `downstream_analysis/00_downstream_analysis.ipynb`    | `space2` (CPU IDE)       | CPU environment                      |
-| `downstream_analysis/01_downstream_analysis_hypothesis-testing.ipynb`    | `space2` (CPU IDE)       | CPU environment                      |
-```
+### IDE and conda environments
+Below are the conda environment requirements to run each notebook.
+| Notebook(s)                                                      | Recommended Environment   | Notes                               |
+|-----------------------------------------------------------------|---------------------------|-----------------------------------|
+| `initial_processing/01_label_prediction_scanvi.ipynb`           | `cellcharter2` (GPU IDE)  | Requires GPU environment           |
+| `initial_processing/04_cellcharter.ipynb`                       | `cellcharter2` (GPU IDE)  | Requires GPU environment           |
+| `initial_processing/03_cd4_cite_integration.ipynb`              | `r_seurat`                | R environment for Seurat processing|
+| `initial_processing/00_scRNAseq_reference.ipynb`                | `space2` (CPU IDE)        | CPU environment                   |
+| `initial_processing/02_label_refine.ipynb`                      | `space2` (CPU IDE)        | CPU environment                   |
+| `downstream_analysis/00_downstream_analysis.ipynb`              | `space2` (CPU IDE)        | CPU environment                   |
+| `downstream_analysis/01_downstream_analysis_hypothesis-testing.ipynb` | `space2` (CPU IDE)    | CPU environment                   |
+
 
 
