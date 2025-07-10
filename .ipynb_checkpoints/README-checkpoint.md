@@ -7,6 +7,7 @@ Analysis for Xenium figure in Bangs et al., 2025: Tertiary lymphoid structures s
 3. initial_processing: notebooks for initial data processing, including cell labeling and spatial zone identification
 4. downstream_analysis: notebooks for spatial hypothesis testing and plot generation
 
+### Data access
 
 ## Running the code:
 1. Clone the repo
@@ -24,4 +25,6 @@ In gpu IDE:
 - [initial_processing/03_cd4_cite_integration.ipynb](initial_processing/03_cd4_cite_integration.ipynb) is in R and should be run in the r_seurat conda environment
 - [initial_processing/00_scRNAseq_reference.ipynb](initial_processing/00_scRNAseq_reference.ipynb) and [initial_processing/02_label_refine.ipynb](initial_processing/02_label_refine.ipynb) can be run in conda environment space2
 - Both notebooks in downstream_processing/ can be run in a cpu IDE with conda environment space2
+
+
 
