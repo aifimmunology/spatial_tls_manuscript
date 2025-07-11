@@ -4,6 +4,7 @@ Analysis for Xenium figure in Bangs et al., 2025:
 *Tertiary lymphoid structures support the development of allergen-specific TCF1+ progenitor CD4+ T cells*
 
 ---
+![](images/xenium_image_crop.png)
 
 ## Contents
 
