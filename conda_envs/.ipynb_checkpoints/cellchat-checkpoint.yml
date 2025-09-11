@@ -1,0 +1,61 @@
+name: r_cellchat
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - r-base=4.2
+  - r-devtools
+  - r-tidyverse
+  - r-remotes
+  - r-rcurl
+  - r-hdf5r
+  - r-patchwork
+  - r-data.table
+  - r-igraph
+  - r-matrix
+  - r-cowplot
+  - r-pheatmap
+  - r-rcolorbrewer
+  - r-readr
+  - r-stringr
+  - r-jsonlite
+  - r-xml
+  - r-curl
+  - r-future
+  - r-doparallel
+  - r-doSNOW
+  - r-biocmanager
+  - libxml2
+  - cairo
+  - pkg-config
+
+# create env
+# conda env create --prefix /home/workspace/environment/r_cellchat -f /home/workspace/spatial_tls_manuscript/conda_envs/cellchat.yml
+# conda activate /home/workspace/environment/r_cellchat
+# conda install conda-forge::r-reshape2
+
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# BiocManager::install("Biobase")
+# remove.packages("stringi")
+# conda install conda-forge::r-stringi
+
+# install.packages("NMF")
+# devtools::install_github("jokergoo/circlize")
+# devtools::install_github("jokergoo/ComplexHeatmap")
+
+# conda install -c conda-forge -c bioconda \
+#   r-svglite \
+#   r-ggpubr \
+#   r-rstatix \
+#   r-systemfonts \
+#   r-nloptr \
+#   r-lme4 \
+#   r-pbkrtest \
+#   r-car \
+#   bioconductor-biocneighbors
+
+# devtools::install_github("jinworks/CellChat")
+
+# conda install -c r r-irkernel
+# Rscript -e "IRkernel::installspec(name = 'r_cellchat', displayname = 'r_cellchat')"
