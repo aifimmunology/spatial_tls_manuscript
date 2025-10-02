@@ -47,5 +47,6 @@ Below are the conda environment requirements to run each notebook.
 | `downstream_analysis/00_downstream_analysis.ipynb`              | `space2` (CPU IDE)        | CPU environment                   |
 | `downstream_analysis/01_downstream_analysis_hypothesis-testing.ipynb` | `space2` (CPU IDE)    | CPU environment                   |
 
-
+### Zenodo 
+https://zenodo.org/records/17249106
 
