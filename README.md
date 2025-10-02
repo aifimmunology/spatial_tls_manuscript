@@ -23,18 +23,6 @@ The provided data includes:
 - Xenium outputs for HDM and Flu acute and memory time points  
 - Processed adata object for the HDM Xenium data  
 - Processed CITE-seq Seurat object  
-```
-spatial_tls_manuscript_data
-├── Xenium_outputs
-│   ├── output-XETG00195__0036990__TIS08778-00-003__20241016__230427
-│   ├── output-XETG00195__0037002__TIS08779-002-003__20241016__230427
-│   ├── output-XETG00195__0036990__TIS08780-002-003__20241016__230427
-│   └── output-XETG00195__0037002__TIS08781-003-003__20241016__230427
-├── adata_processed
-│   └── adata_distance_zones_structure.h5ad
-└── CITEseq_processed 
-    └── D3_D30_20250519.Rds
-```
 
 ## Running the code:
 1. Clone the repo
