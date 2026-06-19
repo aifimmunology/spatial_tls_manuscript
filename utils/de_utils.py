@@ -344,13 +344,14 @@ def run_zone_DE_analysis(
 
     # Dotplot
     if plot and gene_order_filt:
-        sc.pl.dotplot(
+        # sc.pl.dotplot(
+        sc.pl.matrixplot(
             adata_subset,
             var_names=gene_order_filt,
             groupby=zone_col,
             categories_order=zone_order,
             standard_scale='var',
-            swap_axes=False,
+            swap_axes=True,
             show=False
         )
     if dot_save_path is not None:
