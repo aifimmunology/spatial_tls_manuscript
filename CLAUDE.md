@@ -19,6 +19,9 @@ Multiple conda environments are required; YAML specs live in `conda_envs/`. Note
 
 Create an env, e.g.: `conda env create -n space2 -f conda_envs/space2_20250604.yml`. See `README.md` for the full notebook→environment mapping.
 
+## Git
+Never commit changes. I handle all commits myself.
+
 ## Pipeline architecture
 
 The analysis is ordered by the numeric notebook prefixes; later notebooks consume outputs written to disk by earlier ones. Run them in order.
