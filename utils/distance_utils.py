@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import matplotlib.patches as mpatches
 import seaborn as sns
 import scanpy as sc
 from scipy.stats import gaussian_kde
@@ -23,19 +24,27 @@ import scvelo as scv
 from de_utils import filter_adata_expressed_in_n_cells
 
 
-def _draw_gates(ax, gates, x_clip, y_clip, show_labels=True, xlim=None, ylim=None):
-    """Overlay named rectangular gates on a 2D distance plot.
+def _draw_gates(ax, gates, x_clip, y_clip, palette=None, gate_alpha=0.25,
+                xlim=None, ylim=None):
+    """Overlay named rectangular gates as light shaded boxes on a 2D distance plot.
 
     Each gate is {'x_min','x_max','y_min','y_max'} (any subset of keys), in RAW
     distance units. Missing/None bounds default to the plot edges
     (0 .. x_clip / y_clip).
 
-    Gate borders are drawn as four independent line segments. If `xlim` / `ylim`
-    (the view limits) are given, each border is drawn only where it lies within
-    the view: a border whose constant edge is outside the limits is omitted, and
-    borders running past an edge are clipped to it. This lets a gate whose bound
-    sits beyond the axis (e.g. y_min below the y-axis minimum) still draw its
-    in-view borders without a stray line off the plot.
+    Each gate is drawn as a single filled rectangle with `zorder=0`, so it sits
+    in the background behind the cell scatter dots. If `xlim` / `ylim` (the view
+    limits) are given, the rectangle is clipped to the visible window: a gate
+    fully outside the view is omitted, and one running past an edge is clipped to
+    it. This lets a gate whose bound sits beyond the axis (e.g. y_min below the
+    y-axis minimum) still shade its in-view portion without spilling off the plot.
+
+    Colors are resolved per gate (in insertion order, index ``i``):
+    - `palette` is a dict {gate_name: color} -> look up by name, falling back to
+      the default matplotlib color cycle for any missing name.
+    - `palette` is a list/tuple -> cycle by index.
+    - `palette` is a str -> that single color for all gates.
+    - `palette` is None -> default matplotlib color cycle by index.
     """
     def _clip_seg(a, b, lo, hi):
         """Clip the 1D segment spanning (a, b) to [lo, hi]; None if fully outside."""
@@ -43,7 +52,9 @@ def _draw_gates(ax, gates, x_clip, y_clip, show_labels=True, xlim=None, ylim=Non
         s0, s1 = max(s0, lo), min(s1, hi)
         return (s0, s1) if s0 <= s1 else None
 
-    for name, b in gates.items():
+    cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
+    for i, (name, b) in enumerate(gates.items()):
         x0 = b.get('x_min') if b.get('x_min') is not None else 0
         x1 = b.get('x_max') if b.get('x_max') is not None else x_clip
         y0 = b.get('y_min') if b.get('y_min') is not None else 0
@@ -52,30 +63,25 @@ def _draw_gates(ax, gates, x_clip, y_clip, show_labels=True, xlim=None, ylim=Non
         xlo, xhi = xlim if xlim is not None else (min(x0, x1), max(x0, x1))
         ylo, yhi = ylim if ylim is not None else (min(y0, y1), max(y0, y1))
 
-        # Horizontal borders (bottom=y0, top=y1): draw only if the edge's y is
-        # within the y-view, clipped to the x-view.
-        for ty in (y0, y1):
-            if ylo <= ty <= yhi:
-                seg = _clip_seg(x0, x1, xlo, xhi)
-                if seg is not None:
-                    ax.plot([seg[0], seg[1]], [ty, ty],
-                            color='red', linestyle='-', linewidth=2)
-        # Vertical borders (left=x0, right=x1): draw only if the edge's x is
-        # within the x-view, clipped to the y-view.
-        for tx in (x0, x1):
-            if xlo <= tx <= xhi:
-                seg = _clip_seg(y0, y1, ylo, yhi)
-                if seg is not None:
-                    ax.plot([tx, tx], [seg[0], seg[1]],
-                            color='red', linestyle='-', linewidth=2)
+        # clip the gate to the visible window; skip if fully outside
+        seg_x = _clip_seg(x0, x1, xlo, xhi)
+        seg_y = _clip_seg(y0, y1, ylo, yhi)
+        if seg_x is None or seg_y is None:
+            continue
 
-        if show_labels:
-            seg_x = _clip_seg(x0, x1, xlo, xhi)
-            seg_y = _clip_seg(y0, y1, ylo, yhi)
-            if seg_x is not None and seg_y is not None:
-                # center the label on the VISIBLE portion of the gate
-                ax.text((seg_x[0] + seg_x[1]) / 2, (seg_y[0] + seg_y[1]) / 2,
-                        name, ha='center', va='center', fontsize=8, color='black')
+        # resolve the fill color for this gate
+        if isinstance(palette, dict):
+            color = palette.get(name, cycle[i % len(cycle)])
+        elif isinstance(palette, (list, tuple)):
+            color = palette[i % len(palette)]
+        elif isinstance(palette, str):
+            color = palette
+        else:
+            color = cycle[i % len(cycle)]
+
+        ax.add_patch(mpatches.Rectangle(
+            (seg_x[0], seg_y[0]), seg_x[1] - seg_x[0], seg_y[1] - seg_y[0],
+            facecolor=color, edgecolor='none', alpha=gate_alpha, zorder=0))
 
 
 def plot_celltype_density_2d(
@@ -94,7 +100,8 @@ def plot_celltype_density_2d(
     random_state: int = 0,
     figsize: tuple = (3, 3),
     point_size: float = 2,
-    show_gate_labels: bool = True,
+    gate_palette=None,
+    gate_alpha: float = 0.25,
 ):
     """
     2D distance plot of the *density* of a cell population.
@@ -119,8 +126,11 @@ def plot_celltype_density_2d(
     `random_state` to control / vary the subsample.
 
     Use `x_ticks` / `y_ticks` to label the axes at chosen distance values, e.g.
-    `y_ticks=[0, 25, 50, 100, 450]`. If omitted, matplotlib's default ticks are
-    used.
+    `y_ticks=[0, 25, 50, 100, 450]`. If omitted, ticks are placed every 200 um.
+
+    `distance_xy_kde` uses identical axis-limit / tick handling so the two plots
+    are directly comparable. The axes fill the figure box, so both axes have the
+    same physical length regardless of their distance range.
 
     Parameters
     ----------
@@ -135,7 +145,15 @@ def plot_celltype_density_2d(
     x_axis, y_axis : str
         Distance columns for the x and y axes.
     gates : dict, optional
-        region name -> {'x_min','x_max','y_min','y_max'} bounds (raw units) to overlay.
+        region name -> {'x_min','x_max','y_min','y_max'} bounds (raw units) to
+        overlay as light shaded background boxes (cell dots draw on top).
+    gate_palette : dict | list | tuple | str, optional
+        Colors for the gate fills. dict {gate_name: color} colors gates by name
+        (default cycle for any missing name); list/tuple cycles by gate order;
+        str applies one color to all gates; None (default) uses the matplotlib
+        color cycle.
+    gate_alpha : float
+        Opacity of the shaded gate boxes (default 0.25).
     x_clip, y_clip : float
         Axis limits in RAW units; cells beyond these are dropped from the plot.
     x_ticks, y_ticks : list, optional
@@ -203,18 +221,19 @@ def plot_celltype_density_2d(
     # overlay gates; borders outside the view limits are omitted / clipped
     if gates:
         _draw_gates(ax, gates, x_clip, y_clip,
-                    show_labels=show_gate_labels, xlim=xlim, ylim=ylim)
+                    palette=gate_palette, gate_alpha=gate_alpha,
+                    xlim=xlim, ylim=ylim)
 
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
 
-    # ticks: label chosen distances if provided, else matplotlib defaults
-    if x_ticks is not None:
-        ax.set_xticks(x_ticks)
-        ax.set_xticklabels([str(t) for t in x_ticks])
-    if y_ticks is not None:
-        ax.set_yticks(y_ticks)
-        ax.set_yticklabels([str(t) for t in y_ticks])
+    # ticks: the values in x_ticks / y_ticks if given, else every 200 um
+    xt = x_ticks if x_ticks is not None else np.arange(0, int(x_clip) + 1, 200)
+    yt = y_ticks if y_ticks is not None else np.arange(0, int(y_clip) + 1, 200)
+    ax.set_xticks(xt)
+    ax.set_xticklabels([str(t) for t in xt])
+    ax.set_yticks(yt)
+    ax.set_yticklabels([str(t) for t in yt])
 
     ax.set_xlabel('')
     ax.set_ylabel('')
@@ -252,10 +271,10 @@ def distance_xy_kde(
     random_state: int = 0,
     figsize: tuple = (3, 3),
     point_size: float = 2,
-    show_gate_labels: bool = True,
+    gate_alpha: float = 0.25,
     vline: float = None,
     hline: float = None,
-    palette=None,
+    gate_palette=None,
 ):
     """
     2D distance plot of gene-expression (or signature) density.
@@ -338,9 +357,6 @@ def distance_xy_kde(
     if hline is not None:
         ax.axhline(y=hline, color='black', linestyle='--', linewidth=2)
 
-    # # axis limits
-    # xlim = (-10, x_clip + 10)
-    # ylim = (-10, y_clip + 10)
     # axis limits with a small relative pad
     xpad = 0.02 * x_clip
     ypad = 0.02 * y_clip
@@ -348,36 +364,30 @@ def distance_xy_kde(
     # ylim = (-ypad, y_clip + ypad)
     ylim = (-100, y_clip + ypad)
 
-    # overlay gates (same drawing as plot_celltype_density_2d); borders outside
-    # the view limits are omitted / clipped to the axis
+    # overlay gates (same shaded-box drawing as plot_celltype_density_2d); gates
+    # outside the view limits are omitted / clipped to the axis
     if gates:
         _draw_gates(ax, gates, x_clip, y_clip,
-                    show_labels=show_gate_labels, xlim=xlim, ylim=ylim)
+                    palette=gate_palette, gate_alpha=gate_alpha,
+                    xlim=xlim, ylim=ylim)
 
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
 
-    # ticks: label chosen distances if provided, else blank ticks at the extremes
-    if x_ticks is not None:
-        ax.set_xticks(x_ticks)
-        ax.set_xticklabels([str(t) for t in x_ticks])
-    # else:
-    #     ax.set_xticks([0, x_clip])
-    #     ax.set_xticklabels([])
-    if y_ticks is not None:
-        ax.set_yticks(y_ticks)
-        ax.set_yticklabels([str(t) for t in y_ticks])
-    # else:
-    #     ax.set_yticks([0, y_clip])
-    #     ax.set_yticklabels([])
+    # ticks: the values in x_ticks / y_ticks if given, else every 200 um
+    xt = x_ticks if x_ticks is not None else np.arange(0, int(x_clip) + 1, 200)
+    yt = y_ticks if y_ticks is not None else np.arange(0, int(y_clip) + 1, 200)
+    ax.set_xticks(xt)
+    ax.set_xticklabels([str(t) for t in xt])
+    ax.set_yticks(yt)
+    ax.set_yticklabels([str(t) for t in yt])
 
     ax.set_xlabel('')
     ax.set_ylabel('')
     ax.grid(False)
 
-    fig.tight_layout()
-    # plt.title(title, fontsize=20)
     plt.title(gene_name)
+    fig.tight_layout()
 
     return(plt)
 
