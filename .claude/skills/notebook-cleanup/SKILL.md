@@ -49,7 +49,9 @@ this skill is the per-notebook execution procedure plus repo-specific rules.
 ## Pinned Environment block
 
 If the notebook lacks a pinned-environment cell, insert a markdown cell **immediately after the
-title cell** in this exact format (notebooks live one dir deep, so the link is `../conda_envs/...`):
+title cell** in this exact format (notebooks live one dir deep, so the link is `../conda_envs/...`).
+If a pinned-env cell exists but sits *before* the title cell, offer to reorder it after the title
+(cosmetic, non-functional):
 
 ```
 **Pinned Environment:** [`conda_envs/<env>.yml`](../conda_envs/<env>.yml)
