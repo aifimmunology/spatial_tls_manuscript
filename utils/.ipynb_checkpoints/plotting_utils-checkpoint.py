@@ -316,7 +316,6 @@ def plot_fraction_stacked_bar_horizontal(
                 left=left,
                 label=lf if i==0 else "_nolegend_",
                 color=palette[lf],
-                edgecolor="black",
                 linewidth=0.25
             )
 

@@ -201,7 +201,7 @@ def plot_celltype_density_2d(
     x = sub_adata.obs[x_axis].values
     y = sub_adata.obs[y_axis].values
 
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_subplot(1, 1, 1)   
 
     # color each cell by its local 2D density
     xy = np.vstack([x, y])
@@ -231,14 +231,14 @@ def plot_celltype_density_2d(
     xt = x_ticks if x_ticks is not None else np.arange(0, int(x_clip) + 1, 200)
     yt = y_ticks if y_ticks is not None else np.arange(0, int(y_clip) + 1, 200)
     ax.set_xticks(xt)
-    ax.set_xticklabels([str(t) for t in xt])
+    ax.set_xticklabels([str(t) for t in xt], fontsize=18)
     ax.set_yticks(yt)
-    ax.set_yticklabels([str(t) for t in yt])
+    ax.set_yticklabels([str(t) for t in yt], fontsize=18)
 
     ax.set_xlabel('')
     ax.set_ylabel('')
     ax.grid(False)
-    plt.title(celltype if celltype is not None else 'all cells', fontsize=12)
+    plt.title(celltype if celltype is not None else 'all cells', fontsize=18)
     fig.tight_layout()
     return plt
 
@@ -290,17 +290,12 @@ def distance_xy_kde(
 
     # Optionally subset to a cell type (celltype=None -> use all cells)
     if celltype is not None:
-        print(f"Subset to '{celltype_col}' == '{celltype}'")
         adata = adata[adata.obs[celltype_col] == celltype]
-    else:
-        print("Using all cells")
 
     # Clip x and y axes
     if x_clip:
-        print('Clipping x to', x_clip)
         adata = adata[adata.obs[x_axis] <= x_clip, :]
     if y_clip:
-        print('Clipping y to', y_clip)
         adata = adata[adata.obs[y_axis] <= y_clip, :]
 
     sub_adata = adata.copy()
@@ -314,11 +309,9 @@ def distance_xy_kde(
                                     random_state=random_state)
 
     if signature_col:
-        print('plotting signature')
         gene_expr = sub_adata.obs[signature_col]
         title = signature_col
     else:
-        print('plotting gene expr')
         gene_expr = sub_adata[:, gene_name].X.toarray().flatten() if hasattr(sub_adata[:, gene_name].X, "toarray") else sub_adata[:, gene_name].X.flatten()
         gene_expr = np.nan_to_num(gene_expr)
         title = gene_name
@@ -345,10 +338,7 @@ def distance_xy_kde(
         color="#444444",
         linewidths=1,
         weights=(gene_expr - np.min(gene_expr)) ** 2,
-        cmap="viridis",
     )
-
-
 
     # Add vline and hline if specified
     if vline is not None:
@@ -378,15 +368,15 @@ def distance_xy_kde(
     xt = x_ticks if x_ticks is not None else np.arange(0, int(x_clip) + 1, 200)
     yt = y_ticks if y_ticks is not None else np.arange(0, int(y_clip) + 1, 200)
     ax.set_xticks(xt)
-    ax.set_xticklabels([str(t) for t in xt])
+    ax.set_xticklabels([str(t) for t in xt], fontsize=18)
     ax.set_yticks(yt)
-    ax.set_yticklabels([str(t) for t in yt])
+    ax.set_yticklabels([str(t) for t in yt], fontsize=18)
 
     ax.set_xlabel('')
     ax.set_ylabel('')
     ax.grid(False)
 
-    plt.title(gene_name)
+    plt.title(gene_name, fontsize=18)
     fig.tight_layout()
 
     return(plt)
