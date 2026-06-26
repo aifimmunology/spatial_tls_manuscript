@@ -90,7 +90,10 @@ Apply each item that's present; skip what doesn't apply.
    variable. Fix grammar/typos while there. **R notebooks** source `config/paths.R` instead —
    point users there (`config/paths.R`), not the `.py`.
 4. **Unused imports (P2.4).** Trim the import cell to what the notebook actually uses (confirm
-   each by scanning all cells). Also drop the inline global
+   each by scanning ALL cells — and note that matches inside docstrings/comments are NOT usage).
+   Exception: a few imports are *conventional* in this stack (e.g. `anndata`/`squidpy` in a
+   scanpy notebook); if an unused import is one a reader would expect to see, confirm with the
+   user before removing rather than stripping it silently. Also drop the inline global
    `warnings.simplefilter(action='ignore', category=Warning)` if present (it silences warnings
    process-wide) and a stray bare `sys.version_info` statement.
 5. **Duplicated utility functions (reuse).** If the notebook redefines functions that already
