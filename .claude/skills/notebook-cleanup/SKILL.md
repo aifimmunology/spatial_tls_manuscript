@@ -102,6 +102,12 @@ Apply each item that's present; skip what doesn't apply.
    from the module instead (`import de_utils as du` / `import plotting_utils as pu`). Confirm the
    notebook's definition matches the module's before replacing; if it has diverged, flag rather
    than silently swap.
+5b. **Docstring coverage.** Every function (`def` in Python, `name <- function(...)` in R) should
+   have a doc block stating purpose, params, and returns. Fill gaps: Python → numpy-style docstring;
+   R notebooks → a plain comment-header block (the repo's notebooks aren't packages, so don't use
+   roxygen unless asked). Documenting is non-functional/safe, but describe ONLY what the code
+   actually does — if a function's intent is unclear, flag it rather than guessing. Also fix
+   incomplete docstrings (e.g. an empty `param :` type annotation).
 6. **Silent no-op checks → assertions (correctness).** A line like
    `adata.obs_names.equals(other.index)` whose return value is discarded should become
    `assert <expr>, "<message>"`.
