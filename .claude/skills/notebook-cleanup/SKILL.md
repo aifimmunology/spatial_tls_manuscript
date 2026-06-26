@@ -22,6 +22,24 @@ this skill is the per-notebook execution procedure plus repo-specific rules.
 
 ## Standing directions
 
+- **HARD RULE — never edit code that changes function or outputs without explicit approval.**
+  You may implement *non-functional* edits directly (see "safe" below). Anything that could
+  change what the code computes, produces, saves, or how it runs MUST be proposed and approved
+  first — propose it, wait for an explicit "yes," then implement. When unsure which side an edit
+  falls on, treat it as functional and ask.
+  - **R notebooks:** treat removing `library(...)` calls as functional (ask first) — unlike
+    Python imports, R package loads can have load-time side effects (e.g. S3 method registration).
+    Also watch for functions used without their package loaded (e.g. `pal_d3` needs `library(ggsci)`) —
+    flag the missing `library()` as a reproducibility fix.
+  - **Safe to implement directly (non-functional):** removing genuinely-unused imports; fixing
+    comments/markdown/typos; whitespace/formatting (e.g. `os.path.exists (x)` → `os.path.exists(x)`);
+    deleting trailing empty cells; adding the Pinned Environment block; turning a discarded
+    expression into a `print(...)` of the same value.
+  - **Requires approval first (functional):** changing any computation, parameter, threshold,
+    seed, or algorithm; changing what/where data is read or written (incl. swapping a data source
+    like the HISE→local load); replacing a redefined function with an imported one; converting a
+    no-op into an `assert`; algorithm-version switches (e.g. leiden `flavor="igraph"`); anything
+    that alters control flow.
 - **Do NOT strip cell outputs.** Leave all executed outputs in place for now. Do not propose
   output-stripping. (The user may do this separately later.)
 - **Add a "Pinned Environment" markdown block** to each notebook if one does not already exist
@@ -61,9 +79,16 @@ Apply each item that's present; skip what doesn't apply.
    cells** with values from `config.paths` (`DATA_DIR`, `BASE_OUTDIR`, `REF_DIR`, `INPUTS_DIR`,
    `FUNCTIONS_DIR`) joined via `os.path.join`. Watch for inline `pd.read_csv('/home/workspace/...')`
    calls — these are common and easy to miss.
+2b. **Internal-platform / broken data fetches.** Replace data loads that depend on Allen-internal
+   tooling — e.g. HISE `hp.cache_files(...)`, a `download_files.extend(...)` referencing an
+   undefined list, or hard-coded internal file UUIDs — with a local read of the artifact produced
+   by an earlier notebook (e.g. `sc.read_h5ad(os.path.join(BASE_OUTDIR, ...))`). These blocks
+   are usually broken for external users (undefined names) and leak internal identifiers. Flag
+   for approval since it changes the data source; confirm the local path with the user.
 3. **Setup-markdown accuracy.** "Local file info"–style cells should tell users to set the
    relevant variable **in `config/paths.py`** (e.g. `DATA_DIR`, `REF_DIR`), not a local notebook
-   variable. Fix grammar/typos while there.
+   variable. Fix grammar/typos while there. **R notebooks** source `config/paths.R` instead —
+   point users there (`config/paths.R`), not the `.py`.
 4. **Unused imports (P2.4).** Trim the import cell to what the notebook actually uses (confirm
    each by scanning all cells). Also drop the inline global
    `warnings.simplefilter(action='ignore', category=Warning)` if present (it silences warnings
