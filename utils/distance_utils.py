@@ -94,6 +94,7 @@ def plot_celltype_density_2d(
     gates: dict = None,
     x_clip: float = 450,
     y_clip: float = 450,
+    y_min: float = None,
     x_ticks: list = None,
     y_ticks: list = None,
     max_cells: int = None,
@@ -154,8 +155,13 @@ def plot_celltype_density_2d(
         color cycle.
     gate_alpha : float
         Opacity of the shaded gate boxes (default 0.25).
-    x_clip, y_clip : float
+    x_clip, y_clip : float, optional
         Axis limits in RAW units; cells beyond these are dropped from the plot.
+        None = no clipping; the axis limits, ticks and gate boxes then fall back
+        to the data range.
+    y_min : float, optional
+        Lower y-axis limit. None (default) uses the (padded) data minimum; set a
+        fixed value to keep the lower edge constant across panels/samples.
     x_ticks, y_ticks : list, optional
         Distance values at which to place labeled ticks.
     max_cells : int, optional
@@ -211,16 +217,24 @@ def plot_celltype_density_2d(
     # density contours
     sns.kdeplot(x=x, y=y, ax=ax, color='#444444', linewidths=1)
 
-    # axis limits with a small relative pad
-    xpad = 0.02 * x_clip
-    ypad = 0.02 * y_clip
-    xlim = (-xpad, x_clip + xpad)
-    # ylim = (-ypad, y_clip + ypad)
-    ylim = (-100, y_clip + ypad)
+    # axis limits with a small relative pad. When x_clip / y_clip is None (no
+    # clipping requested) fall back to the data max so the limits, ticks and
+    # gate boxes still have a finite upper bound.
+    x_hi = x_clip if x_clip is not None else (float(np.nanmax(x)) if len(x) else 1.0)
+    y_hi = y_clip if y_clip is not None else (float(np.nanmax(y)) if len(y) else 1.0)
+    xpad = 0.02 * x_hi
+    ypad = 0.02 * y_hi
+    xlim = (-xpad, x_hi + xpad)
+    # lower y limit: explicit y_min if given, else the padded data minimum
+    if y_min is not None:
+        y_lo = y_min
+    else:
+        y_lo = (float(np.nanmin(y)) if len(y) else 0.0) - ypad
+    ylim = (y_lo, y_hi + ypad)
 
     # overlay gates; borders outside the view limits are omitted / clipped
     if gates:
-        _draw_gates(ax, gates, x_clip, y_clip,
+        _draw_gates(ax, gates, x_hi, y_hi,
                     palette=gate_palette, gate_alpha=gate_alpha,
                     xlim=xlim, ylim=ylim)
 
@@ -228,8 +242,8 @@ def plot_celltype_density_2d(
     ax.set_ylim(*ylim)
 
     # ticks: the values in x_ticks / y_ticks if given, else every 200 um
-    xt = x_ticks if x_ticks is not None else np.arange(0, int(x_clip) + 1, 200)
-    yt = y_ticks if y_ticks is not None else np.arange(0, int(y_clip) + 1, 200)
+    xt = x_ticks if x_ticks is not None else np.arange(0, int(x_hi) + 1, 200)
+    yt = y_ticks if y_ticks is not None else np.arange(0, int(y_hi) + 1, 200)
     ax.set_xticks(xt)
     ax.set_xticklabels([str(t) for t in xt], fontsize=18)
     ax.set_yticks(yt)
@@ -265,6 +279,7 @@ def distance_xy_kde(
     gates: dict = None,
     x_clip: float = 450,
     y_clip: float = 450,
+    y_min: float = None,
     x_ticks: list = None,
     y_ticks: list = None,
     max_cells: int = None,
@@ -308,6 +323,14 @@ def distance_xy_kde(
         sub_adata = sc.pp.subsample(sub_adata, n_obs=max_cells, copy=True,
                                     random_state=random_state)
 
+    # effective upper axis bounds: fall back to the data max when no clip is
+    # requested (x_clip / y_clip = None) so the limits, ticks and gate boxes
+    # still have a finite upper bound.
+    xv = sub_adata.obs[x_axis].to_numpy(dtype=float)
+    yv = sub_adata.obs[y_axis].to_numpy(dtype=float)
+    x_hi = x_clip if x_clip is not None else (float(np.nanmax(xv)) if len(xv) else 1.0)
+    y_hi = y_clip if y_clip is not None else (float(np.nanmax(yv)) if len(yv) else 1.0)
+
     if signature_col:
         gene_expr = sub_adata.obs[signature_col]
         title = signature_col
@@ -343,21 +366,25 @@ def distance_xy_kde(
     # Add vline and hline if specified
     if vline is not None:
         # ax.axvline(x=vline, color='black', linestyle='--', linewidth=2)
-        ax.plot([vline, vline], [hline, y_clip], color='black', linestyle='--', linewidth=2)
+        ax.plot([vline, vline], [hline, y_hi], color='black', linestyle='--', linewidth=2)
     if hline is not None:
         ax.axhline(y=hline, color='black', linestyle='--', linewidth=2)
 
     # axis limits with a small relative pad
-    xpad = 0.02 * x_clip
-    ypad = 0.02 * y_clip
-    xlim = (-xpad, x_clip + xpad)
-    # ylim = (-ypad, y_clip + ypad)
-    ylim = (-100, y_clip + ypad)
+    xpad = 0.02 * x_hi
+    ypad = 0.02 * y_hi
+    xlim = (-xpad, x_hi + xpad)
+    # lower y limit: explicit y_min if given, else the padded data minimum
+    if y_min is not None:
+        y_lo = y_min
+    else:
+        y_lo = (float(np.nanmin(yv)) if len(yv) else 0.0) - ypad
+    ylim = (y_lo, y_hi + ypad)
 
     # overlay gates (same shaded-box drawing as plot_celltype_density_2d); gates
     # outside the view limits are omitted / clipped to the axis
     if gates:
-        _draw_gates(ax, gates, x_clip, y_clip,
+        _draw_gates(ax, gates, x_hi, y_hi,
                     palette=gate_palette, gate_alpha=gate_alpha,
                     xlim=xlim, ylim=ylim)
 
@@ -365,8 +392,8 @@ def distance_xy_kde(
     ax.set_ylim(*ylim)
 
     # ticks: the values in x_ticks / y_ticks if given, else every 200 um
-    xt = x_ticks if x_ticks is not None else np.arange(0, int(x_clip) + 1, 200)
-    yt = y_ticks if y_ticks is not None else np.arange(0, int(y_clip) + 1, 200)
+    xt = x_ticks if x_ticks is not None else np.arange(0, int(x_hi) + 1, 200)
+    yt = y_ticks if y_ticks is not None else np.arange(0, int(y_hi) + 1, 200)
     ax.set_xticks(xt)
     ax.set_xticklabels([str(t) for t in xt], fontsize=18)
     ax.set_yticks(yt)
