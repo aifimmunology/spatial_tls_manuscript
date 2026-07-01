@@ -241,16 +241,18 @@ def zone_composition_heatmap_2(adata, label_col, zone_col, scale_by = 'rows', sw
 def plot_fraction_stacked_bar_horizontal(
     adata,
     x_col: str,
-    sample_col: str,
     stack_col: str,
     palette: dict,
-    figsize=(10,6), 
+    sample_col: str = None,
+    figsize=(10,6),
     show_legend: bool = True,
-    gap: float = 0.05  # fraction of bar_width reserved as gap
+    gap: float = 0.05,  # fraction of bar_width reserved as gap
+    return_df: bool = False
 ):
     """
     Create horizontal stacked bar plots of fractional composition of `stack_col` categories
-    within each `x_col` group, split side-by-side by `sample_col`.
+    within each `x_col` group. If `sample_col` is provided, bars are split side-by-side by
+    `sample_col`; otherwise a single bar is drawn per `x_col` group.
 
     Parameters
     ----------
@@ -258,34 +260,40 @@ def plot_fraction_stacked_bar_horizontal(
         AnnData object with obs metadata.
     x_col : str
         Column in adata.obs for category grouping (e.g., 'zone_consol').
-    sample_col : str
-        Column in adata.obs to split bars side-by-side (e.g., 'sample_label').
     stack_col : str
         Column in adata.obs used for stacked bar coloring (e.g., 'label_fine').
     palette : dict
         Dictionary mapping `stack_col` categories to colors.
+    sample_col : str, optional
+        Column in adata.obs to split bars side-by-side (e.g., 'sample_label').
+        If None (default), a single bar is drawn per `x_col` group.
     figsize : tuple
         Figure size for the matplotlib plot.
     gap : float
         Fraction of bar_width to leave as gap between sample_col bars.
+    return_df : bool
+        If True, return (ax, plot_df) where plot_df holds the fractional
+        composition used for plotting. If False (default), return only ax.
     """
 
     # Step 1: dataframe
-    df = adata.obs[[sample_col, x_col, stack_col]].copy()
+    group_cols = [x_col, stack_col] if sample_col is None else [sample_col, x_col, stack_col]
+    df = adata.obs[group_cols].copy()
 
     # Step 2: counts
+    frac_index = [x_col] if sample_col is None else [x_col, sample_col]
     counts = (
-        df.groupby([x_col, sample_col, stack_col])
+        df.groupby(frac_index + [stack_col])
           .size()
           .reset_index(name='count')
     )
 
     # Step 3: fractions
-    counts['fraction'] = counts.groupby([x_col, sample_col])['count'].transform(lambda x: x / x.sum())
+    counts['fraction'] = counts.groupby(frac_index)['count'].transform(lambda x: x / x.sum())
 
     # Step 4: pivot
     plot_df = counts.pivot_table(
-        index=[x_col, sample_col],
+        index=frac_index,
         columns=stack_col,
         values='fraction',
         fill_value=0
@@ -295,7 +303,10 @@ def plot_fraction_stacked_bar_horizontal(
     fig, ax = plt.subplots(figsize=figsize)
 
     zones = plot_df.index.get_level_values(x_col).unique()
-    samples = plot_df.index.get_level_values(sample_col).unique()
+    samples = (
+        [None] if sample_col is None
+        else plot_df.index.get_level_values(sample_col).unique()
+    )
 
     bar_height = 0.8 / len(samples)
     effective_height = bar_height * (1 - gap)  # shrink to leave a gap
@@ -307,10 +318,12 @@ def plot_fraction_stacked_bar_horizontal(
         for lf in plot_df.columns:
             widths = []
             for z in zones:
-                widths.append(plot_df.loc[(z, sample), lf] if (z, sample) in plot_df.index else 0)
+                key = z if sample is None else (z, sample)
+                widths.append(plot_df.loc[key, lf] if key in plot_df.index else 0)
 
+            offset = 0 if sample is None else (i-0.5)*bar_height
             ax.barh(
-                [pos + (i-0.5)*bar_height for pos in y],
+                [pos + offset for pos in y],
                 widths,
                 effective_height,
                 left=left,
@@ -340,6 +353,9 @@ def plot_fraction_stacked_bar_horizontal(
 
     sns.despine()
     plt.tight_layout()
+
+    if return_df:
+        return ax, plot_df
     return ax
 
     
