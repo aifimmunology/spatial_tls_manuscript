@@ -1,3 +1,15 @@
+"""Shared plotting utilities for spatial and compositional analyses.
+
+Imported in notebooks via ``import plotting_utils as pu`` (FUNCTIONS_DIR is on sys.path).
+
+Functions
+---------
+- plot_general : spatial scatter plot from AnnData metadata with flexible coloring and shape overlays
+- zone_composition : grouped bar chart of cell-type composition across zones
+- zone_composition_heatmap_2 : heatmap of cell-type composition across zones
+- plot_fraction_stacked_bar_horizontal : horizontal stacked bar chart of cell-type fractions
+"""
+
 import math
 import anndata as ad
 import squidpy as sq

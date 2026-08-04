@@ -1,14 +1,12 @@
 """Shared plotting utilities for the TLS/bronchi distance analyses.
 
-Consolidated from the downstream_analysis distance notebooks (02-04) so the
-plotting functions live in one place. Imported in those notebooks via
-``from distance_utils import ...`` (FUNCTIONS_DIR is on sys.path).
-
 Functions
 ---------
-- _draw_gates / plot_celltype_density_2d : 2D distance-space cell density with gates
-- scatter_with_gaussian_kde / distance_xy_kde : expression-weighted 2D KDE in distance space
-- scvelo_heatmap : gene-expression-along-a-trajectory heatmap (scVelo)
+- _draw_gates : overlay named rectangular gates as shaded boxes on a 2D axis (internal helper)
+- plot_celltype_density_2d : 2D cell scatter in distance space, colored by local KDE density, with optional gate overlays
+- scatter_with_gaussian_kde : scatter plot colored by 2D Gaussian KDE density (internal helper)
+- distance_xy_kde : 2D cell scatter in distance space, KDE-weighted by gene expression or an obs signature column
+- scvelo_heatmap : gene expression heatmap sorted by a spatial distance axis (wraps scv.pl.heatmap)
 """
 
 import numpy as np

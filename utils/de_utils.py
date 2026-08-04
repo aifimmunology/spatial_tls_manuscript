@@ -1,44 +1,19 @@
-from pathlib import Path
-import sys
-import os
-import time
-import warnings
-import re
-import math
+"""Shared differential expression utilities for zone comparisons.
+
+Imported in notebooks via ``from de_utils import ...`` (FUNCTIONS_DIR is on sys.path).
+
+Functions
+---------
+- filter_adata_expressed_in_n_cells : filter AnnData to genes expressed in at least a given fraction of cells
+- DE_test : differential expression testing wrapper around scanpy rank_genes_groups (Wilcoxon, BH correction)
+- DE_volcano : volcano plot from a DE result table
+- run_zone_DE_analysis : run DE within a cell type across spatial zones, with volcano plots and dotplot
+"""
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-import anndata
 import scanpy as sc
-import squidpy as sq
-
-
-import scipy
-from scipy.spatial import distance_matrix
-from scipy.spatial.distance import cdist
-from scipy import stats
-import scipy.ndimage as ndi
-from scipy.stats import gaussian_kde
-from scipy.ndimage import gaussian_filter
-from scipy.signal import find_peaks
-
-from shapely.geometry import Point
-
-from shapely.geometry import MultiPolygon
-from alphashape import alphashape
-from alphashape import optimizealpha
-import geopandas as gpd
-
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import PowerTransformer
-
-import pickle
-import joblib
-
-import random
-import matplotlib.colors as mcolors
 
 import matplotlib as mpl
 mpl.rcParams['axes.titlesize'] = 24
@@ -46,8 +21,6 @@ mpl.rcParams['pdf.fonttype'] = 42
 
 import warnings
 warnings.simplefilter(action='ignore', category=Warning)
-
-sys.version_info
 
 def filter_adata_expressed_in_n_cells(adata, fraction=0.05):
     """
