@@ -1,6 +1,6 @@
 # Spatial Transcriptomics Analysis for Mouse Lung Allergy Model
 
-Analysis for Xenium figure in Bangs et al., 2025:  
+Analysis for Xenium figure in Bangs et al., 2026:  
 *Tertiary lymphoid structures support the development of allergen-specific TCF1+ progenitor CD4+ T cells*
 
 ---
