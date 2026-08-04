@@ -7,6 +7,7 @@ import scvi
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import colorcet
 
 def plot_general(adata, x_col, y_col, color_col, palette, alpha=1, size=0.5, colors_sep=False, save_path=False, legend_outside=True, legend_remove = False, 
                  labels_on_plot=False, poly_list=False, poly_colors = ['black', 'blue', 'darkred']):
