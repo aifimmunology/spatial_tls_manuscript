@@ -1,4 +1,4 @@
-name: /home/workspace/environment/space2
+name: space2
 channels:
   - bioconda
   - conda-forge
