@@ -1,4 +1,4 @@
-name: /home/workspace/environment/r_seurat
+name: r_seurat
 channels:
   - bioconda
   - conda-forge
